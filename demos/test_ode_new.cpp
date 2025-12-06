@@ -121,7 +121,7 @@ int main(int argc, char** argv)
 
   for (int i = 0; i < steps; i++)
   {
-    stepper->DoStep(tau, y);
+    stepper->doStep(tau, y);
     t = (i+1) * tau;
     outfile << t << " " << y(0) << " " << y(1) << std::endl;
   }

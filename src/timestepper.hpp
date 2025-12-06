@@ -67,7 +67,7 @@ class ImprovedEuler : public TimeStepper
         m_ytilde(rhs->dimX())
     { }
 
-    void DoStep(double tau, VectorView<> y) override
+    void doStep(double tau, VectorView<> y) override
     {
       // 1) Compute f(y_n)
       this->m_rhs->evaluate(y, m_vecf);
@@ -119,7 +119,7 @@ public:
         m_equ = ynew - m_yold - m_tau * f_comb;
     }
 
-    void DoStep(double tau, VectorView<> y) override
+    void doStep(double tau, VectorView<> y) override
     {
         // y_n kaydet
         m_yold->set(y);

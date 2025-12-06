@@ -112,7 +112,7 @@ int main()
 
   for (int i = 0; i < steps; i++)
   {
-    stepper.DoStep(tau, y);
+    stepper.doStep(tau, y);
 
     t  = y(1);
     UC = y(0);
