@@ -9,6 +9,7 @@ include_directories(src nanoblas/src)
 add_subdirectory (src)
 #add_subdirectory (nanoblas)
 
+add_subdirectory (mechsystem)
 
 add_executable(test_ode_new demos/test_ode_new.cpp)
 target_include_directories(test_ode_new PUBLIC ${PROJECT_SOURCE_DIR}/nanoblas/src)
