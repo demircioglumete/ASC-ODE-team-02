@@ -105,6 +105,117 @@ namespace ASC_ode
        return result;
    }
 
+   
+      // -------------------------------------------------------------
+   // Additional operators for Exercise 18.4
+   // -------------------------------------------------------------
+
+   // a - b
+   template <size_t N, typename T = double>
+   AutoDiff<N,T> operator- (const AutoDiff<N,T>& a, const AutoDiff<N,T>& b)
+   {
+       AutoDiff<N,T> result(a.value() - b.value());
+       for (size_t i = 0; i < N; i++)
+           result.deriv()[i] = a.deriv()[i] - b.deriv()[i];
+       return result;
+   }
+
+   // scalar - AutoDiff
+   template <size_t N, typename T = double>
+   AutoDiff<N,T> operator- (T a, const AutoDiff<N,T>& b)
+   {
+       AutoDiff<N,T> aa(a);
+       return aa - b;
+   }
+
+   // AutoDiff - scalar
+   template <size_t N, typename T = double>
+   AutoDiff<N,T> operator- (const AutoDiff<N,T>& a, T b)
+   {
+       AutoDiff<N,T> bb(b);
+       return a - bb;
+   }
+
+   // a / b
+   template <size_t N, typename T = double>
+   AutoDiff<N,T> operator/ (const AutoDiff<N,T>& a, const AutoDiff<N,T>& b)
+   {
+       AutoDiff<N,T> result(a.value() / b.value());
+       double denom = b.value() * b.value();
+       for (size_t i = 0; i < N; i++)
+           result.deriv()[i] =
+              (a.deriv()[i] * b.value() - a.value() * b.deriv()[i]) / denom;
+       return result;
+   }
+
+   // AutoDiff / scalar
+   template <size_t N, typename T = double>
+   AutoDiff<N,T> operator/ (const AutoDiff<N,T>& a, T b)
+   {
+       AutoDiff<N,T> bb(b);
+       return a / bb;
+   }
+
+   // scalar / AutoDiff
+   template <size_t N, typename T = double>
+   AutoDiff<N,T> operator/ (T a, const AutoDiff<N,T>& b)
+   {
+       AutoDiff<N,T> aa(a);
+       return aa / b;
+   }
+
+   // -------------------------------------------------------------
+   // Additional functions: cos, exp, log
+   // -------------------------------------------------------------
+
+   template <size_t N, typename T = double>
+   AutoDiff<N,T> cos(const AutoDiff<N,T>& a)
+   {
+       AutoDiff<N,T> result(::cos(a.value()));
+       for (size_t i = 0; i < N; i++)
+           result.deriv()[i] = -::sin(a.value()) * a.deriv()[i];
+       return result;
+   }
+
+   template <size_t N, typename T = double>
+   AutoDiff<N,T> exp(const AutoDiff<N,T>& a)
+   {
+       AutoDiff<N,T> result(::exp(a.value()));
+       for (size_t i = 0; i < N; i++)
+           result.deriv()[i] = result.value() * a.deriv()[i];
+       return result;
+   }
+
+   template <size_t N, typename T = double>
+   AutoDiff<N,T> log(const AutoDiff<N,T>& a)
+   {
+       AutoDiff<N,T> result(::log(a.value()));
+       for (size_t i = 0; i < N; i++)
+           result.deriv()[i] = a.deriv()[i] / a.value();
+       return result;
+   }
+
+// AutoDiff * scalar
+template <size_t N, typename T = double>
+AutoDiff<N,T> operator* (const AutoDiff<N,T>& a, T b)
+{
+    AutoDiff<N,T> r(a.value() * b);
+    for (size_t i = 0; i < N; i++)
+        r.deriv()[i] = a.deriv()[i] * b;
+    return r;
+}
+
+// scalar * AutoDiff
+template <size_t N, typename T = double>
+AutoDiff<N,T> operator* (T a, const AutoDiff<N,T>& b)
+{
+    AutoDiff<N,T> r(a * b.value());
+    for (size_t i = 0; i < N; i++)
+        r.deriv()[i] = a * b.deriv()[i];
+    return r;
+}
+ 
+
 
 } // namespace ASC_ode
 
