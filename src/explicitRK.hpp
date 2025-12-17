@@ -36,7 +36,7 @@ public:
                 ytemp += tau * A(j,i) * k[i];
             }
 
-            m_rhs->evaluate(ytemp, k[j]);   // <-- IMPORTANT : rhs_
+            m_rhs->evaluate(ytemp, k[j]);   
         }
 
         for (int j = 0; j < s; j++)

@@ -12,6 +12,9 @@ int main()
   auto mB = mss.addMass( { 1, { 2.0, 0.0 } } );
   mss.addSpring ( { 1, 20, { mA, mB } } );
 
+  mss.addDistanceConstraint(mA, mB, 1.5);
+
+
   std::cout << "mss: " << std::endl << mss << std::endl;
 
 

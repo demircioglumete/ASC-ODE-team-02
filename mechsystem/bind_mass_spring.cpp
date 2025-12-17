@@ -97,6 +97,9 @@ PYBIND11_MODULE(mass_spring, m) {
       .def("add", [](MassSpringSystem<3> & mss, Mass<3> m) { return mss.addMass(m); })
       .def("add", [](MassSpringSystem<3> & mss, Fix<3> f) { return mss.addFix(f); })
       .def("add", [](MassSpringSystem<3> & mss, Spring s) { return mss.addSpring(s); })
+
+      .def("addDistanceConstraint",&MassSpringSystem<3>::addDistanceConstraint)
+
       .def_property_readonly("masses", [](MassSpringSystem<3> & mss) -> auto& { return mss.masses(); })
       .def_property_readonly("fixes", [](MassSpringSystem<3> & mss) -> auto& { return mss.fixes(); })
       .def_property_readonly("springs", [](MassSpringSystem<3> & mss) -> auto& { return mss.springs(); })

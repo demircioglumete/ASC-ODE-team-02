@@ -1,21 +1,19 @@
 #include <iostream>
-#include <fstream>
 #include <memory>
+#include <string>
 
 #include "nonlinfunc.hpp"
 #include "explicitRK.hpp"
 
 using namespace ASC_ode;
 
-// Simple mass-spring system: y = [x, v], y' = [v, -k/m * x]
+// y = [x, v], y' = [v, -k/m x]
 class MassSpring : public NonlinearFunction
 {
-private:
-    double m_mass;
-    double m_stiffness;
+    double m, k;
 
 public:
-    MassSpring(double m, double k) : m_mass(m), m_stiffness(k) {}
+    MassSpring(double m_, double k_) : m(m_), k(k_) {}
 
     size_t dimX() const override { return 2; }
     size_t dimF() const override { return 2; }
@@ -23,51 +21,77 @@ public:
     void evaluate(VectorView<double> x, VectorView<double> f) const override
     {
         f(0) = x(1);
-        f(1) = -m_stiffness / m_mass * x(0);
+        f(1) = -k / m * x(0);
     }
 
-    void evaluateDeriv(VectorView<double>, MatrixView<double>) const override
-    {
-        // Explicit RK does not need Jacobian
-    }
+    void evaluateDeriv(VectorView<double>, MatrixView<double>) const override {}
 };
 
-int main()
+int main(int argc, char** argv)
 {
-    // Define the RHS object for ODE y' = f(y)
+    std::string method = "rk4";
+    if (argc > 1)
+        method = argv[1];
+
     auto rhs = std::make_shared<MassSpring>(1.0, 1.0);
 
-    // RK4 Butcher tableau (classical 4-stage)
-    Matrix<> A(4,4);
-    A = 0.0;
-    A(1,0) = 0.5;
-    A(2,1) = 0.5;
-    A(3,2) = 1.0;
+    
+    std::unique_ptr<Matrix<>> A;
+    std::unique_ptr<Vector<>> b;
+    std::unique_ptr<Vector<>> c;
 
-    Vector<> b = {1.0/6, 1.0/3, 1.0/3, 1.0/6};
-    Vector<> c = {0.0, 0.5, 0.5, 1.0};
-
-    // Construct the explicit RK stepper
-    ExplicitRungeKutta stepper(rhs, A, b, c);
-
-    // Simulation parameters
-    double tend = 10.0;
-    int steps = 500;
-    double tau = tend / steps;
-
-    Vector<> y = {1.0, 0.0}; // initial condition: x=1, v=0
-
-    std::ofstream out("rk4_output.txt");
-    out << 0.0 << " " << y(0) << " " << y(1) << "\n";
-
-    // Time stepping loop
-    for(int i = 1; i <= steps; i++)
+    if (method == "rk2")
     {
-        stepper.doStep(tau, y);
-        double t = i * tau;
-        out << t << " " << y(0) << " " << y(1) << "\n";
+        std::cout << "Using RK2 (Midpoint)\n";
+
+        A = std::make_unique<Matrix<>>(2, 2);
+        *A = 0.0;
+        (*A)(1, 0) = 0.5;
+
+        b = std::make_unique<Vector<>>(Vector<>({0.0, 1.0}));
+        c = std::make_unique<Vector<>>(Vector<>({0.0, 0.5}));
+    }
+    else
+    {
+        std::cout << "Using RK4\n";
+
+        A = std::make_unique<Matrix<>>(4, 4);
+        *A = 0.0;
+        (*A)(1, 0) = 0.5;
+        (*A)(2, 1) = 0.5;
+        (*A)(3, 2) = 1.0;
+
+        b = std::make_unique<Vector<>>(Vector<>({
+            1.0 / 6.0,
+            1.0 / 3.0,
+            1.0 / 3.0,
+            1.0 / 6.0
+        }));
+
+        c = std::make_unique<Vector<>>(Vector<>({
+            0.0,
+            0.5,
+            0.5,
+            1.0
+        }));
     }
 
-    std::cout << "Explicit RK4 simulation completed. Output written to rk4_output.txt\n";
+    ExplicitRungeKutta stepper(rhs, *A, *b, *c);
+
+    Vector<> y({1.0, 0.0});   // x = 1, v = 0
+double t  = 0.0;
+double dt = 0.01;
+
+for (int n = 0; n < 10; ++n)
+{
+    stepper.doStep(dt, y);
+    t += dt;
+
+    std::cout << "t = " << t
+              << "  x = " << y(0)
+              << "  v = " << y(1) << std::endl;
+}
+
+
     return 0;
 }
